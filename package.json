@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "blinkstick": "^1.1.3",
+    "dbus": "^1.0.3",
     "slack": "^11.0.0"
   }
 }

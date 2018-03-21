@@ -3,6 +3,32 @@ const slack = require('slack')
 const bot = new slack({token})
 const blinkstick = require('blinkstick'),
       device = blinkstick.findFirst();
+let querystring = require('querystring');
+let request = require('request');
+
+let form = {
+  token: token
+};
+
+let formData = querystring.stringify(form);
+let contentLength = formData.length;
+
+let usersCounts = request({
+  headers: {
+    'Content-Length': contentLength,
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  // uri: `https://nrk.slack.com/api/users.counts?_x_id=${process.env.SLACK_URL_X_ID}`,
+  uri: 'https://nrk.slack.com/api/users.counts',
+  body: formData,
+  method: 'POST'
+}, function (err, res, body) {
+  //it works!
+  console.log(body);
+  usersCounts = body;
+  return body;
+});
+
 
 let blink = () => {
   if (device) {
@@ -20,6 +46,7 @@ let blink = () => {
     wait();
   }
 }
+
 
 // API methods tested OK
 // slack.users.list({token}).then(console.log);

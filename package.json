@@ -15,6 +15,7 @@
   "dependencies": {
     "blinkstick": "^1.1.3",
     "dbus": "^1.0.3",
+    "request": "^2.85.0",
     "slack": "^11.0.0"
   }
 }

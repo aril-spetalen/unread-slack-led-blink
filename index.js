@@ -1,19 +1,40 @@
 const token = process.env.SLACK_BOT_TOKEN
-const slack = require('slack')
-const bot = new slack({token})
-const blinkstick = require('blinkstick'),
-      device = blinkstick.findFirst();
+// const slack = require('slack')
+const blink = require('./blink')
+// const bot = new slack({token})
+// const blinkstick = require('blinkstick'),
+//       device = blinkstick.findFirst();
 let querystring = require('querystring');
-let request = require('request');
+let requestPromise = require('request-promise');
 
 let form = {
   token: token
 };
-
 let formData = querystring.stringify(form);
 let contentLength = formData.length;
+let usersCounts;
 
-let usersCounts = request({
+let blinkForChannels = (channels) => {
+  channels.forEach(function (channel) {
+    //console.log(`channel.name: ${channel.name}`);
+    if (channel.is_archived === false && channel.is_member === true && channel.unread_count > 0) {
+      blink.blinkGreen();
+      console.log("unreads in " + channel.name);
+    }
+    if (channel.name === 'andromeda'  && channel.unread_count > 0) {
+      blink.redWarning();
+      console.log("unreads in " + channel.name);
+    }
+    if (channel.name === 'andromeda') {
+      blink.redWarning();
+      console.log(channel);
+    }
+
+  });
+
+}
+
+usersCounts = requestPromise({
   headers: {
     'Content-Length': contentLength,
     'Content-Type': 'application/x-www-form-urlencoded'
@@ -24,29 +45,20 @@ let usersCounts = request({
   method: 'POST'
 }, function (err, res, body) {
   //it works!
-  console.log(body);
+  // console.log(body);
   usersCounts = body;
   return body;
-});
-
-
-let blink = () => {
-  if (device) {
-    var finished = false;
-
-    device.blink('red', {'delay':100, 'repeats': 5}, function() {
-      device.blink('green', {'delay':50, 'repeats': 10}, function() {
-        device.blink('blue', {'delay':25, 'repeats': 20}, function() {
-          finished = true;
-        });
-      });
-    });
-
-    var wait = function () { if (!finished) setTimeout(wait, 100)}
-    wait();
-  }
-}
-
+}).then(function (body) {
+  let response = JSON.parse(body);
+  //response.channels.forEach(function (channel) {
+  //   console.log(`channel.name: ${channel.name}`);
+  //});
+  blinkForChannels(response.channels);
+  //      console.log(JSON.parse(body));
+})
+  .catch(function (err) {
+      // API call failed...
+  });
 
 // API methods tested OK
 // slack.users.list({token}).then(console.log);

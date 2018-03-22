@@ -14,43 +14,27 @@ let form = {
 let formData = querystring.stringify(form);
 let contentLength = formData.length;
 
-// State
-let usersCounts;
-
-let maxChannelLevel = (channels) => {
-  slack.channels.list({token, exclude_archived: true}).then(console.log);
-  channels.forEach(function (channel) {
-    if (channel.is_archived === false && channel.is_member === true && channel.unread_count > 0) {
-      blink.blinkGreen();
-      console.log("info: unreads in " + channel.name);
-    }
-    if (channel.name === 'andromeda'  && channel.unread_count > 0) {
-      blink.redWarning();
-      console.log("warn: unreads in " + channel.name);
-    }
-    if (channel.name === 'andromeda') {
-      blink.redWarning();
-      console.log(channel);
-    }
-  });
-}
-
 let blinkForChannels = (channels) => {
+  let level = 0;
   channels.forEach(function (channel) {
     //console.log(`channel.name: ${channel.name}`);
-    if (channel.is_archived === false && channel.is_member === true && channel.unread_count > 0) {
-      blink.blinkGreen();
-      console.log("info: unreads in " + channel.name);
-    }
-    if (channel.name === 'andromeda'  && channel.unread_count > 0) {
-      blink.redWarning();
-      console.log("warn: unreads in " + channel.name);
-    }
-    if (channel.name === 'andromeda') {
-      blink.redWarning();
-      console.log(channel);
+    if (channel.is_archived === false && channel.is_member === true) {
+      if (channel.name === 'avspiller'  && channel.unread_count > 0) {
+        blink.redWarning();
+        level = 3;
+        console.log("warn: unreads in " + channel.name);
+      } else if (channel.mention_count > 0) {
+        blink.redWarning();
+        level = 3;
+        console.log("warn: mention in " + channel.name);
+      } else if (channel.has_unreads > 0) {
+        blink.blinkGreen();
+        console.log("info: unreads in " + channel.name);
+        level = 1;
+      }
     }
   });
+  return level;
 }
 
 let blinkForGroups = (groups) => {
@@ -71,6 +55,9 @@ let blinkForGroups = (groups) => {
         level = 3;
         console.log("warn: mentions in " + group.name);
       } else if (group.has_unreads) {
+        // most important if one of 'ps', 'devops', 'nrktv', 'streaming_origin',
+        // 'programspiller-test',
+        // 'publikumsservice', 'radiospillerfeil', 'tekst-til-nett'
         level = Math.max(level, 2);
         console.log("info: unreads in " + group.name);
       }
@@ -86,19 +73,16 @@ let blinkForGroups = (groups) => {
   return level;
 }
 
-// in this loop, read actual groups and channels, then
-// blink according to unread_count and unread_mentions.
+
+// Read actual groups and channels, then
+// blink according to unread messages and mentions.
 let loop = () => {
 
   let interval = setInterval(() => {
     let maxLevel = 0;
     console.log(new Date());
-    // slack.channels.list({token, exclude_archived: true}).then(console.log);
-    //console.log(JSON.parse(usersCounts));
-    //};
 
-    // Main: Initial request for users.counts. Then enter loop.
-    //let getUsersCounts =  () => {
+    // Main: Request users.counts.
     requestPromise({
       headers: {
         'Content-Length': contentLength,
@@ -108,21 +92,19 @@ let loop = () => {
       body: formData,
       method: 'POST'
     }, function (err, res, body) {
-      console.log('successfull response from requestPromise(slack.users.counts)')
-      usersCounts = body;
+      // console.log('successfull response from requestPromise(slack.users.counts)')
       return body;
     }).then(function (body) {
       //console.log(body)
       let response = JSON.parse(body);
       maxLevel = Math.max(maxLevel, blinkForGroups(response.groups));
-      //  blinkForChannels(response.channels);
+      maxLevel = Math.max(maxLevel, blinkForChannels(response.channels));
     }).catch(function (err) {
       // API call failed...
       console.log('caught an exception from requestPromise(slack.users.counts)')
       console.log(err);
     })
-    //}
-  }, 25000);
+  }, 30000);
 };
 
 loop();

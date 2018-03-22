@@ -1,0 +1,21 @@
+{
+  "name": "unread-slack-led-blink",
+  "version": "0.0.1",
+  "description": "Blink a Blinkstick LED lamp, if you have unread messages",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "slack",
+    "blinkstick"
+  ],
+  "author": "aril.spetalen@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "blinkstick": "^1.1.3",
+    "request": "^2.85.0",
+    "request-promise": "^4.2.2",
+    "slack": "^11.0.0"
+  }
+}

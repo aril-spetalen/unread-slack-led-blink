@@ -16,6 +16,17 @@ let blinkGreen = () => {
   }
 }
 
+let heartBeat = () => {
+  if (device) {
+    var finished = false;
+    device.blink('green', {'delay':100, 'repeats': 1}, function() {
+      finished = true;
+    });
+    var wait = function () { if (!finished) setTimeout(wait, 100)}
+    wait();
+  }
+}
+
 let redWarning = () => {
   if (device) {
     var finished = false;
@@ -29,5 +40,6 @@ let redWarning = () => {
 
 module.exports = {
   blinkGreen,
-  redWarning
+  redWarning,
+  heartBeat
 };

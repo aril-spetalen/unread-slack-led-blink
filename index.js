@@ -20,17 +20,17 @@ let blinkForChannels = (channels) => {
     //console.log(`channel.name: ${channel.name}`);
     if (channel.is_archived === false && channel.is_member === true) {
       if (channel.name === 'avspiller'  && channel.unread_count > 0) {
-        blink.redWarning();
+        // blink.redWarning();
         level = 3;
         console.log("warn: unreads in " + channel.name);
       } else if (channel.mention_count > 0) {
-        blink.redWarning();
+        // blink.redWarning();
         level = 3;
         console.log("warn: mention in " + channel.name);
       } else if (channel.has_unreads > 0) {
-        blink.blinkGreen();
+        // blink.blinkGreen();
         console.log("info: unreads in " + channel.name);
-        level = 1;
+        level = Math.max(1, level);
       }
     }
   });
@@ -63,13 +63,42 @@ let blinkForGroups = (groups) => {
       }
     }
   });
-  if (level === 3) {
-    console.log('level 3, red blink')
-    blink.redWarning();
-  } else if (level === 2) {
-    console.log('level 2, green blink')
-    blink.blinkGreen();
-  }
+  return level;
+}
+
+let blinkForIms = (instantMessages) => {
+  let level = 0;
+  instantMessages.forEach(function (im) {
+    // console.log(`im.name: ${im.name}`);
+    if (im.has_unreads === true) {
+      level = 3;
+      console.log("warn: unread IM from " + im.name);
+    }
+  });
+  return level;
+}
+
+let blinkForMpims = (MPInstantMessages) => {
+  let level = 0;
+  MPInstantMessages.forEach(function (mpim) {
+    // console.log(`mpim.name: ${mpim.name}`);
+    if (mpim.is_archived === false && mpim.is_member === true) {
+      if (mpim.mention_count > 0) {
+        level = 3;
+        console.log(mpim);
+        console.log("warn: mention in " + mpim.name);
+      } else if (mpim.unread_count > 0) {
+        level = 2;
+        console.log("info: unread in " + mpim.name);
+      } else if (mpim.has_unreads) {
+        // most important if one of 'ps', 'devops', 'nrktv', 'streaming_origin',
+        // 'programspiller-test',
+        // 'publikumsservice', 'radiospillerfeil', 'tekst-til-nett'
+        level = Math.max(level, 2);
+        console.log("info: unreads in " + mpim.name);
+      }
+    }
+  });
   return level;
 }
 
@@ -99,12 +128,23 @@ let loop = () => {
       let response = JSON.parse(body);
       maxLevel = Math.max(maxLevel, blinkForGroups(response.groups));
       maxLevel = Math.max(maxLevel, blinkForChannels(response.channels));
+      maxLevel = Math.max(maxLevel, blinkForIms(response.ims));
+      maxLevel = Math.max(maxLevel, blinkForMpims(response.mpims));
+
+
+      if (maxLevel === 3) {
+        blink.redWarning();
+      } else if (maxLevel === 2) {
+        blink.blinkGreen();
+      } else {
+        blink.heartBeat();
+      }
     }).catch(function (err) {
       // API call failed...
       console.log('caught an exception from requestPromise(slack.users.counts)')
       console.log(err);
     })
-  }, 30000);
+  }, 15000);
 };
 
 loop();

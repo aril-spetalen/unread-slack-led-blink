@@ -1,12 +1,12 @@
 var blinkstick = require('blinkstick'),
     device = blinkstick.findFirst();
 
-let blinkGreen = () => {
+let blinkBlue = () => {
   if (device) {
     var finished = false;
-    device.blink('green', {'delay':300, 'repeats': 3}, function() {
+    device.blink('blue', {'delay':300, 'repeats': 3}, function() {
       device.blink('blue', {'delay':100, 'repeats': 3}, function() {
-        device.blink('green', {'delay':300, 'repeats': 3}, function() {
+        device.blink('blue', {'delay':300, 'repeats': 3}, function() {
           finished = true;
         });
       });
@@ -19,7 +19,9 @@ let blinkGreen = () => {
 let heartBeat = () => {
   if (device) {
     var finished = false;
-    device.blink('green', {'delay':100, 'repeats': 1}, function() {
+    //device.blink('green', {'delay':100, 'repeats': 1}, function() {
+    //device.morph('green', function() {
+    device.pulse('green', function() {
       finished = true;
     });
     var wait = function () { if (!finished) setTimeout(wait, 100)}
@@ -30,16 +32,16 @@ let heartBeat = () => {
 let redWarning = () => {
   if (device) {
     var finished = false;
-    device.blink('red', {'delay':300, 'repeats': 5}, function() {
+    device.blink('red', {'delay':500, 'repeats': 5}, function() {
       finished = true;
     });
-    var wait = function () { if (!finished) setTimeout(wait, 100)}
+    var wait = function () { if (!finished) setTimeout(wait, 200)}
     wait();
   }
 }
 
 module.exports = {
-  blinkGreen,
+  blinkBlue,
   redWarning,
   heartBeat
 };

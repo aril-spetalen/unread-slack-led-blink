@@ -19,19 +19,19 @@ let blinkForChannels = (channels) => {
   channels.forEach(function (channel) {
     //console.log(`channel.name: ${channel.name}`);
     if (channel.is_archived === false && channel.is_member === true) {
-      if (channel.name === 'avspiller'  && channel.unread_count > 0) {
+      if (channel.is_starred === true && channel.has_unreads === true) {
         // blink.redWarning();
         level = 3;
         console.log("warn: unreads in " + channel.name);
       } else if (channel.mention_count > 0) {
-        // blink.redWarning();
         level = 3;
         console.log("warn: mention in " + channel.name);
-      } else if (channel.has_unreads > 0) {
-        // blink.blinkGreen();
+      } else if (channel.has_unreads) {
+        // blink.blinkBlue();
         console.log("info: unreads in " + channel.name);
-        level = Math.max(1, level);
-      }
+        level = Math.max(2, level);
+      } 
+      //nrktv:{"id":"C6H30RQJH","name":"nrktv","is_archived":false,"is_general":false,"is_muted":false,"is_starred":true,"is_member":true,"name_normalized":"nrktv","has_unreads":true,"latest":"1522746366.000307","last_read":"1522741077.000197","mention_count_display":0,"mention_count":0}
     }
   });
   return level;
@@ -88,14 +88,8 @@ let blinkForMpims = (MPInstantMessages) => {
         console.log(mpim);
         console.log("warn: mention in " + mpim.name);
       } else if (mpim.unread_count > 0) {
-        level = 2;
-        console.log("info: unread in " + mpim.name);
-      } else if (mpim.has_unreads) {
-        // most important if one of 'ps', 'devops', 'nrktv', 'streaming_origin',
-        // 'programspiller-test',
-        // 'publikumsservice', 'radiospillerfeil', 'tekst-til-nett'
         level = Math.max(level, 2);
-        console.log("info: unreads in " + mpim.name);
+        console.log("info: unread in " + mpim.name);
       }
     }
   });
@@ -109,7 +103,7 @@ let loop = () => {
 
   let interval = setInterval(() => {
     let maxLevel = 0;
-    console.log(new Date());
+    //console.log(new Date());
 
     // Main: Request users.counts.
     requestPromise({
@@ -135,7 +129,7 @@ let loop = () => {
       if (maxLevel === 3) {
         blink.redWarning();
       } else if (maxLevel === 2) {
-        blink.blinkGreen();
+        blink.blinkBlue();
       } else {
         blink.heartBeat();
       }
@@ -147,4 +141,7 @@ let loop = () => {
   }, 15000);
 };
 
+console.log('starting slackbeat service, ' + new Date());
 loop();
+//blink.heartBeat();
+

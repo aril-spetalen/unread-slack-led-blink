@@ -20,9 +20,15 @@ let blinkForChannels = (channels) => {
     //console.log(`channel.name: ${channel.name}`);
     if (channel.is_archived === false && channel.is_member === true) {
       if (channel.is_starred === true && channel.has_unreads === true) {
+        if (channel.name === 'andromeda' || channel.mention_count > 0) {
+          level = 4;
+          console.log("warn: unreads in " + channel.name);
+        } else {
+
         // blink.redWarning();
         level = 3;
         console.log("warn: unreads in " + channel.name);
+        }
       } else if (channel.mention_count > 0) {
         level = 3;
         console.log("warn: mention in " + channel.name);
@@ -71,7 +77,7 @@ let blinkForIms = (instantMessages) => {
   instantMessages.forEach(function (im) {
     // console.log(`im.name: ${im.name}`);
     if (im.has_unreads === true) {
-      level = 3;
+      level = 4;
       console.log("warn: unread IM from " + im.name);
     }
   });
@@ -126,8 +132,10 @@ let loop = () => {
       maxLevel = Math.max(maxLevel, blinkForMpims(response.mpims));
 
 
-      if (maxLevel === 3) {
+      if (maxLevel === 4) {
         blink.redWarning();
+      } else if (maxLevel === 3) {
+        blink.blinkYellow();
       } else if (maxLevel === 2) {
         blink.blinkBlue();
       } else {

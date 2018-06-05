@@ -1,5 +1,6 @@
 const token = process.env.SLACK_BOT_TOKEN
 const blink = require('./blink')
+const samuel = require('./samuel')
 const slack = require('slack')
 
 // Related to the POST request users.counts
@@ -13,6 +14,7 @@ let form = {
 };
 let formData = querystring.stringify(form);
 let contentLength = formData.length;
+const updateInterval = 15000;
 
 let blinkForChannels = (channels) => {
   let level = 0;
@@ -72,13 +74,17 @@ let blinkForGroups = (groups) => {
   return level;
 }
 
+let letter = 'a';
 let blinkForIms = (instantMessages) => {
   let level = 0;
+  letter = '';
   instantMessages.forEach(function (im) {
     // console.log(`im.name: ${im.name}`);
+    // console.log(`im: ${JSON.stringify(im, null, 2)}`);
     if (im.has_unreads === true) {
       level = 4;
       console.log("warn: unread IM from " + im.name);
+      letter = im.name[0].toLowerCase();
     }
   });
   return level;
@@ -133,7 +139,11 @@ let loop = () => {
 
 
       if (maxLevel === 4) {
-        blink.redWarning();
+        if (letter) {
+          samuel.morse(letter);
+        } else {
+          blink.redWarning();
+        }
       } else if (maxLevel === 3) {
         blink.blinkYellow();
       } else if (maxLevel === 2) {
@@ -146,7 +156,7 @@ let loop = () => {
       console.log('caught an exception from requestPromise(slack.users.counts)')
       console.log(err);
     })
-  }, 15000);
+  }, updateInterval);
 };
 
 console.log('starting slackbeat service, ' + new Date());

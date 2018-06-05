@@ -4,12 +4,8 @@ var blinkstick = require('blinkstick-n9'),
 let blinkBlue = () => {
   if (device) {
     var finished = false;
-    device.blink('blue', {'delay':300, 'repeats': 3}, function() {
-      device.blink('blue', {'delay':100, 'repeats': 3}, function() {
-        device.blink('blue', {'delay':300, 'repeats': 3}, function() {
-          finished = true;
-        });
-      });
+    device.blink('blue', {'delay':500, 'repeats': 3}, function() {
+      finished = true;
     });
     var wait = function () { if (!finished) setTimeout(wait, 100)}
     wait();
@@ -19,8 +15,6 @@ let blinkBlue = () => {
 let heartBeat = () => {
   if (device) {
     var finished = false;
-    //device.blink('green', {'delay':100, 'repeats': 1}, function() {
-    //device.morph('green', function() {
     device.pulse('green', function() {
       finished = true;
     });

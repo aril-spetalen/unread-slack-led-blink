@@ -13,9 +13,8 @@
   "author": "aril.spetalen@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "blinkstick-n9": "^1.1.4",
-    "request": "^2.87.0",
-    "request-promise": "^4.2.2",
-    "slack": "^11.0.0"
+    "blinkstick-n9": "^2.0.0",
+    "node-fetch": "^3.0.0",
+    "slack": "^11.0.2"
   }
 }

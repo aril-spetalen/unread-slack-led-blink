@@ -2,10 +2,12 @@ const token = process.env.SLACK_BOT_TOKEN
 const blink = require('./blink')
 const samuel = require('./samuel')
 const slack = require('slack')
+const fetch = require('node-fetch');
+// import fetch from 'node-fetch';
 
 // Related to the POST request users.counts
 let querystring = require('querystring');
-let requestPromise = require('request-promise');
+// let requestPromise = require('request-promise');
 let form = {
   token: token,
   mpim_aware: true,
@@ -117,25 +119,20 @@ let loop = () => {
     let maxLevel = 0;
     //console.log(new Date());
 
-    // Main: Request users.counts.
-    requestPromise({
-      headers: {
-        'Content-Length': contentLength,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      uri: 'https://nrk.slack.com/api/users.counts',
-      body: formData,
-      method: 'POST'
-    }, function (err, res, body) {
-      // console.log('successfull response from requestPromise(slack.users.counts)')
-      return body;
-    }).then(function (body) {
-      //console.log(body)
-      let response = JSON.parse(body);
-      maxLevel = Math.max(maxLevel, blinkForGroups(response.groups));
-      maxLevel = Math.max(maxLevel, blinkForChannels(response.channels));
-      maxLevel = Math.max(maxLevel, blinkForIms(response.ims));
-      maxLevel = Math.max(maxLevel, blinkForMpims(response.mpims));
+    const response = fetch('https://nrk.slack.com/api/users.counts', {
+	    method: 'post', 
+	    body: JSON.stringify(body),
+	    headers: {
+		    'Content-Length': contentLength,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+	    }
+    });
+    const body = response.body; 
+    let parsedResponse = JSON.parse(body);
+      maxLevel = Math.max(maxLevel, blinkForGroups(parsedResponse.groups));
+      maxLevel = Math.max(maxLevel, blinkForChannels(parsedResponse.channels));
+      maxLevel = Math.max(maxLevel, blinkForIms(parsedResponse.ims));
+      maxLevel = Math.max(maxLevel, blinkForMpims(parsedResponse.mpims));
 
 
       if (maxLevel === 4) {

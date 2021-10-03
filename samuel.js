@@ -89,7 +89,7 @@ let morse = (letter, color = 'purple') => {
   }
 }
 
- morse('c');
+ morse('c', 'blue');
 
 module.exports = {
   morse

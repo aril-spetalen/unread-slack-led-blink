@@ -1,4 +1,4 @@
-var blinkstick = require('blinkstick'),
+var blinkstick = require('blinkstick-n9'),
     device = blinkstick.findFirst();
 
 if (device) {
